@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import AllUsers from "../pages/Users/AllUsers";
+import AllUsersTable from "../pages/CreateTeam/AllUsersTable";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -9,6 +10,10 @@ const router = createBrowserRouter([
       {
         path: "/users",
         element: <AllUsers />,
+      },
+      {
+        path: "/create-team",
+        element: <AllUsersTable />,
       },
     ],
   },
