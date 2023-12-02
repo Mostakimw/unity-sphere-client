@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import SectionTitle from "../../components/SectionTitle";
 import UserCard from "./UserCard";
-import { TUser } from "./UserInterface";
+import { TUser } from "../../interfaces/UserInterface";
+import Container from "../../components/Container";
 
 const AllUsers = () => {
   const [users, setUsers] = useState<TUser[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 20;
 
+  // fetching users by useEffect
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -35,27 +37,52 @@ const AllUsers = () => {
 
   return (
     <>
-      <div className="mt-12">
-        <SectionTitle title="ALL USERS" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {users.map((user) => (
-            <UserCard key={user.id} user={user} />
-          ))}
+      <Container>
+        <div className="mt-12">
+          <SectionTitle title="ALL USERS" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {users.map((user) => (
+              <UserCard key={user.id} user={user} />
+            ))}
+          </div>
+
+          {/* pagination btn here  */}
+          <div className="flex justify-center my-12">
+            {Array.from({ length: totalPages }, (_, index) => {
+              const maxVisibleButtons = 5;
+              const start = Math.max(
+                0,
+                currentPage - Math.floor(maxVisibleButtons / 2)
+              );
+              const end = Math.min(totalPages, start + maxVisibleButtons);
+
+              const showEllipsisStart = start > 0;
+              const showEllipsisEnd = end < totalPages;
+
+              return (
+                <React.Fragment key={index + 1}>
+                  {showEllipsisStart && index === 0 && <span>...</span>}
+                  {index >= start && index < end && (
+                    <button
+                      className={`mx-2 p-2 ${
+                        currentPage === index + 1
+                          ? "bg-blue-500 text-white"
+                          : ""
+                      }`}
+                      onClick={() => handlePageChange(index + 1)}
+                    >
+                      {index + 1}
+                    </button>
+                  )}
+                  {showEllipsisEnd && index === totalPages - 1 && (
+                    <span>...</span>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex justify-center mt-4">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              className={`mx-2 p-2 ${
-                currentPage === index + 1 ? "bg-blue-500 text-white" : ""
-              }`}
-              onClick={() => handlePageChange(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
-      </div>
+      </Container>
     </>
   );
 };

@@ -33,7 +33,7 @@ const Navbar = () => {
       </li>
       <li>
         <NavLink
-          to="/all-team"
+          to="/teams"
           className={({ isActive }) => (isActive ? "active" : "default")}
         >
           All Team

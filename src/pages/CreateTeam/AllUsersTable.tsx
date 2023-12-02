@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { TUser } from "../Users/UserInterface";
 import SectionTitle from "../../components/SectionTitle";
 import axios from "axios";
 import useUserData from "../../hooks/useUserData";
+import { TUser } from "../../interfaces/UserInterface";
+import Container from "../../components/Container";
+import Loading from "../../components/Loading";
 
 const AllUsersTable = () => {
-  const [allUserData] = useUserData();
+  const [allUserData, , isLoading] = useUserData();
   const users: TUser[] = allUserData?.data?.users || [];
-  // console.log(users[0]);
 
   const [selectedUsers, setSelectedUsers] = useState<TUser[]>([]);
   // console.log("selected", selectedUsers);
@@ -77,83 +78,91 @@ const AllUsersTable = () => {
     }
   };
 
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
+
   return (
-    <div className="mt-12">
-      <SectionTitle title="Create A Team" />
-      <p>{error}</p>
+    <>
+      <Container>
+        <div className="mt-12">
+          <SectionTitle title="Create A Team From Here" />
+          <p>{error}</p>
 
-      <div className="flex items-center space-x-4 mb-4">
-        <input
-          type="text"
-          placeholder="Enter Team Name"
-          value={teamName}
-          onChange={(e) => setTeamName(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-        />
-        <button
-          onClick={handleCreateTeam}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none"
-        >
-          Create Team
-        </button>
-      </div>
+          <div className="flex items-center space-x-4 mb-4">
+            <input
+              type="text"
+              placeholder="Enter Team Name"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+            />
+            <button
+              onClick={handleCreateTeam}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none"
+            >
+              Create Team
+            </button>
+          </div>
 
-      <p className="mb-2">{`Selected Users: ${selectedUsers.length}`}</p>
+          <p className="mb-2">{`Selected Users: ${selectedUsers.length}`}</p>
 
-      <div className="overflow-x-auto">
-        <table className="table">
-          {/* head */}
-          <thead>
-            <tr>
-              <th>Select</th>
-              <th>Avatar</th>
-              <th>Name</th>
-              <th>Domain</th>
-              <th>Available</th>
-              <th>Gender</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <th>
-                  <input
-                    type="checkbox"
-                    onChange={() => handleUserSelection(user)}
-                    checked={selectedUsers.some(
-                      (selectedUser) => selectedUser.id === user.id
-                    )}
-                    className="checkbox"
-                    disabled={
-                      selectedUsers.some(
-                        (selectedUser) =>
-                          selectedUser.domain === user.domain &&
-                          selectedUser.id !== user.id
-                      ) || !user.available
-                    }
-                  />
-                </th>
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle w-12 h-12">
-                        <img src={user.avatar} alt="Avatar" />
+          <div className="overflow-x-auto">
+            <table className="table">
+              {/* head */}
+              <thead>
+                <tr>
+                  <th>Select</th>
+                  <th>Avatar</th>
+                  <th>Name</th>
+                  <th>Domain</th>
+                  <th>Available</th>
+                  <th>Gender</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <th>
+                      <input
+                        type="checkbox"
+                        onChange={() => handleUserSelection(user)}
+                        checked={selectedUsers.some(
+                          (selectedUser) => selectedUser.id === user.id
+                        )}
+                        className="checkbox"
+                        disabled={
+                          selectedUsers.some(
+                            (selectedUser) =>
+                              selectedUser.domain === user.domain &&
+                              selectedUser.id !== user.id
+                          ) || !user.available
+                        }
+                      />
+                    </th>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-12 h-12">
+                            <img src={user.avatar} alt="Avatar" />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="font-bold">
-                  {`${user.first_name} ${user.last_name}`}
-                </td>
-                <td>{user.domain}</td>
-                <td>{user.available ? "True" : "False"}</td>
-                <td>{user.gender}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                    </td>
+                    <td className="font-bold">
+                      {`${user.first_name} ${user.last_name}`}
+                    </td>
+                    <td>{user.domain}</td>
+                    <td>{user.available ? "True" : "False"}</td>
+                    <td>{user.gender}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Container>
+    </>
   );
 };
 

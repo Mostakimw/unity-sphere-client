@@ -3,7 +3,7 @@ import Navbar from "./components/shared/Navbar";
 
 const App = () => {
   return (
-    <div className="w-10/12 mx-auto">
+    <div>
       <Navbar />
       <Outlet />
     </div>

@@ -1,4 +1,4 @@
-import { TUser } from "./UserInterface";
+import { TUser } from "../../interfaces/UserInterface";
 
 interface TUserCard {
   user: TUser;
