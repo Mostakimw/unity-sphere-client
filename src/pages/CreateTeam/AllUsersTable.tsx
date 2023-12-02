@@ -8,9 +8,15 @@ import useUserData from "../../hooks/useUserData";
 const AllUsersTable = () => {
   const [allUserData] = useUserData();
   const users: TUser[] = allUserData?.data?.users || [];
+  // console.log(users[0]);
 
   const [selectedUsers, setSelectedUsers] = useState<TUser[]>([]);
-  const [teamName, setTeamName] = useState("");
+  // console.log("selected", selectedUsers);
+  const members = selectedUsers.map((member) => {
+    return { user: member._id };
+  });
+  console.log(members);
+  const [teamName, setTeamName] = useState<string | number>("");
   const [error, setError] = useState<string | null>(null);
 
   // user selection handler with unique domain and availability
@@ -45,7 +51,7 @@ const AllUsersTable = () => {
     if (teamName && selectedUsers.length > 0) {
       const teamData = {
         team_name: teamName,
-        members: selectedUsers,
+        members: members,
       };
 
       const apiUrl = "http://localhost:5000/api/team";
