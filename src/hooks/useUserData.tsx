@@ -12,7 +12,9 @@ const useUserData = (): UseUserDataResult => {
   } = useQuery({
     queryKey: ["allUserData"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/users");
+      const res = await axios.get(
+        "https://unity-sphere-server.vercel.app/api/users"
+      );
       return res.data;
     },
   });

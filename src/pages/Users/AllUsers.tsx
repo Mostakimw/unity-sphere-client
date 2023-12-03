@@ -3,6 +3,7 @@ import SectionTitle from "../../components/SectionTitle";
 import UserCard from "./UserCard";
 import { TUser } from "../../interfaces/UserInterface";
 import Container from "../../components/Container";
+import { Helmet } from "react-helmet-async";
 
 const AllUsers = () => {
   const [users, setUsers] = useState<TUser[]>([]);
@@ -15,15 +16,12 @@ const AllUsers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const apiUrl = `http://localhost:5000/api/users?page=${currentPage}&pageSize=${PAGE_SIZE}${
+        const apiUrl = `https://unity-sphere-server.vercel.app/api/users?page=${currentPage}&pageSize=${PAGE_SIZE}${
           searchQuery ? `&query=${searchQuery}` : ""
         }`;
 
-        console.log("API URL:", apiUrl);
-
         const response = await fetch(apiUrl);
         const { data } = await response.json();
-        console.log("API Response:", data);
 
         const { users, totalPages } = data;
 
@@ -52,6 +50,9 @@ const AllUsers = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Users</title>
+      </Helmet>
       <Container>
         <div className="mt-12">
           <SectionTitle title="ALL USERS" />

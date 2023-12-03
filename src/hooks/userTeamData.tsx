@@ -12,7 +12,9 @@ const useTeamData = (): UseTeamDataResult => {
   } = useQuery({
     queryKey: ["allTeamData"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/team"); // Adjust the API endpoint
+      const res = await axios.get(
+        "https://unity-sphere-server.vercel.app/api/team"
+      ); // Adjust the API endpoint
       return res.data;
     },
   });

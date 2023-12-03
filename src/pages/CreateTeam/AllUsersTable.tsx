@@ -7,6 +7,7 @@ import { TUser } from "../../interfaces/UserInterface";
 import Container from "../../components/Container";
 import Loading from "../../components/Loading";
 import toast from "react-hot-toast";
+import { Helmet } from "react-helmet-async";
 
 interface Filter {
   domain: string;
@@ -85,19 +86,21 @@ const AllUsersTable = () => {
         members: members,
       };
 
-      const apiUrl = "http://localhost:5000/api/team";
+      const apiUrl = "https://unity-sphere-server.vercel.app/api/team";
 
       try {
         // Save the team data
         await axios.post(apiUrl, teamData);
         refetch();
-        console.log(refetch);
 
         // Update user status after creating the team
         for (const id of selectedUsers) {
-          await axios.patch(`http://localhost:5000/api/users/${id.id}`, {
-            available: false,
-          });
+          await axios.patch(
+            `https://unity-sphere-server.vercel.app/api/users/${id.id}`,
+            {
+              available: false,
+            }
+          );
         }
 
         // Show a success toast
@@ -130,7 +133,9 @@ const AllUsersTable = () => {
   const handleDeleteUser = async (id: number) => {
     try {
       // Make an API request to delete the user
-      await axios.delete(`http://localhost:5000/api/users/${id}`);
+      await axios.delete(
+        `https://unity-sphere-server.vercel.app/api/users/${id}`
+      );
       // Show a success toast
       toast.success("User deleted successfully!", { duration: 3000 });
     } catch (error) {
@@ -152,7 +157,7 @@ const AllUsersTable = () => {
     }));
   };
 
-  const apiUrl = "http://localhost:5000/api/users";
+  const apiUrl = "https://unity-sphere-server.vercel.app/api/users";
   // Fetch users based on filter when filter changes
   useEffect(() => {
     const fetchFilteredUsers = async () => {
@@ -179,6 +184,9 @@ const AllUsersTable = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Team Creation</title>
+      </Helmet>
       <Container>
         <div className="mt-12">
           <SectionTitle title="Create A Team From Here" />

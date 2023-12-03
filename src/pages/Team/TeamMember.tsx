@@ -6,9 +6,7 @@ interface TTeamMemberProps {
   member: TTeamUser;
 }
 const TeamMember: React.FC<TTeamMemberProps> = ({ member }) => {
-  console.log(member);
   const user: TUser = member.user;
-  console.log(user);
   return (
     <div className=" p-4  text-center">
       <img
