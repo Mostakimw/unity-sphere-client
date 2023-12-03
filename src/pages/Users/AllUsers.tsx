@@ -19,8 +19,12 @@ const AllUsers = () => {
           searchQuery ? `&query=${searchQuery}` : ""
         }`;
 
+        console.log("API URL:", apiUrl);
+
         const response = await fetch(apiUrl);
         const { data } = await response.json();
+        console.log("API Response:", data);
+
         const { users, totalPages } = data;
 
         setUsers(users);
@@ -53,7 +57,10 @@ const AllUsers = () => {
           <SectionTitle title="ALL USERS" />
 
           {/* Search form */}
-          <form onSubmit={handleSearchSubmit} className="mb-4">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="mb-4 flex justify-center"
+          >
             <input
               type="text"
               placeholder="Search by name..."

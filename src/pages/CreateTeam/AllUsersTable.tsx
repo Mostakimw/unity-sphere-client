@@ -6,6 +6,7 @@ import useUserData from "../../hooks/useUserData";
 import { TUser } from "../../interfaces/UserInterface";
 import Container from "../../components/Container";
 import Loading from "../../components/Loading";
+import toast from "react-hot-toast";
 
 interface Filter {
   domain: string;
@@ -14,14 +15,14 @@ interface Filter {
 }
 
 const AllUsersTable = () => {
-  const [allUserData, , isLoading] = useUserData();
+  const [allUserData, refetch, isLoading] = useUserData();
   const users: TUser[] = allUserData?.data?.users || [];
 
   const [selectedUsers, setSelectedUsers] = useState<TUser[]>([]);
   const [filter, setFilter] = useState({
     domain: "",
     gender: "",
-    available: "undefined",
+    available: "true",
   });
 
   const members = selectedUsers.map((member) => {
@@ -69,9 +70,16 @@ const AllUsersTable = () => {
   };
 
   // team creation handler
-  // TODO: have to update user available false
   const handleCreateTeam = async () => {
-    if (teamName && selectedUsers.length > 0) {
+    if (!teamName) {
+      //  error toast if the team name is not provided
+      toast.error("Team name is required", {
+        duration: 3000,
+      });
+      return; // Prevent further execution
+    }
+
+    if (selectedUsers.length > 0) {
       const teamData = {
         team_name: teamName,
         members: members,
@@ -80,8 +88,23 @@ const AllUsersTable = () => {
       const apiUrl = "http://localhost:5000/api/team";
 
       try {
-        // saving the team data
+        // Save the team data
         await axios.post(apiUrl, teamData);
+        refetch();
+        console.log(refetch);
+
+        // Update user status after creating the team
+        for (const id of selectedUsers) {
+          await axios.patch(`http://localhost:5000/api/users/${id.id}`, {
+            available: false,
+          });
+        }
+
+        // Show a success toast
+        toast.success("Team created successfully!", {
+          duration: 3000,
+        });
+
         setSelectedUsers([]);
         setTeamName("");
         setError(null);
@@ -89,7 +112,6 @@ const AllUsersTable = () => {
         // Handle error response
         if (error.response) {
           console.error("Error creating team:", error.response.data.message);
-          // set error if team name is same
           setError(error.response.data.message);
         } else if (error.request) {
           console.error("Request made, but no response received");
@@ -97,6 +119,25 @@ const AllUsersTable = () => {
           setError("Team name and at least one user must be selected");
         }
       }
+    } else {
+      // Display an error toast if no users are selected
+      toast.error("Select at least one user for the team", {
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    try {
+      // Make an API request to delete the user
+      await axios.delete(`http://localhost:5000/api/users/${id}`);
+      // Show a success toast
+      toast.success("User deleted successfully!", { duration: 3000 });
+    } catch (error) {
+      // Handle error response
+      console.error("Error deleting user:", error);
+      // Show an error toast
+      toast.error("Error deleting user", { duration: 3000 });
     }
   };
 
@@ -111,13 +152,14 @@ const AllUsersTable = () => {
     }));
   };
 
+  const apiUrl = "http://localhost:5000/api/users";
   // Fetch users based on filter when filter changes
   useEffect(() => {
     const fetchFilteredUsers = async () => {
       setIsLoadingForFiltered(true);
 
       try {
-        const response = await axios.get("http://localhost:5000/api/users", {
+        const response = await axios.get(apiUrl, {
           params: filter,
         });
         setFilteredUsers(response.data.data.users);
@@ -131,7 +173,6 @@ const AllUsersTable = () => {
     fetchFilteredUsers();
   }, [filter]);
   //! filtering end
-
   if (isLoading) {
     return <Loading></Loading>;
   }
@@ -143,9 +184,9 @@ const AllUsersTable = () => {
           <SectionTitle title="Create A Team From Here" />
           <p className="text-red-500 mb-4">{error}</p>
 
-          <div className="flex items-center space-x-4 mb-4">
+          <div className="flex flex-col lg:flex-row items-center space-x-3 mb-4">
             {/* team name  */}
-            <div>
+            <div className="mb-3 lg:mb-0">
               <input
                 type="text"
                 placeholder="Enter Team Name"
@@ -169,7 +210,7 @@ const AllUsersTable = () => {
                 value={filter.domain}
                 className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
               >
-                <option value="">All Domains</option>
+                <option value="">Domains</option>
                 {users
                   .map((user) => user.domain)
                   .filter((value, index, self) => self.indexOf(value) === index)
@@ -185,7 +226,7 @@ const AllUsersTable = () => {
                 value={filter.gender}
                 className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
               >
-                <option value="">All Genders</option>
+                <option value="">Genders</option>
                 {users
                   .map((user) => user.gender)
                   .filter((value, index, self) => self.indexOf(value) === index)
@@ -203,7 +244,7 @@ const AllUsersTable = () => {
                 value={filter.available}
                 className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
               >
-                <option value="">All available</option>
+                <option value="">Availability</option>
                 <option value="true">True</option>
                 <option value="false">False</option>
               </select>
@@ -228,6 +269,7 @@ const AllUsersTable = () => {
                     <th>Domain</th>
                     <th>Available</th>
                     <th>Gender</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -266,6 +308,14 @@ const AllUsersTable = () => {
                         <td>{user.domain}</td>
                         <td>{user.available ? "True" : "False"}</td>
                         <td>{user.gender}</td>
+                        <td>
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="text-red-500"
+                          >
+                            Delete
+                          </button>
+                        </td>
                       </tr>
                     )
                   )}
